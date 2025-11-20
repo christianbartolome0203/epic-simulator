@@ -16,28 +16,27 @@ input:focus, select:focus { outline:none; box-shadow:0 0 10px #0ff; border-color
 button { padding:12px 25px; background:linear-gradient(90deg,#0ff,#00f,#ff00ff); color:#010101; border:none; border-radius:15px; cursor:pointer; font-size:18px; font-weight:600; transition:0.3s; box-shadow:0 0 10px #0ff; }
 button:hover { transform:translateY(-3px); box-shadow:0 0 15px #0ff,0 0 30px #00f; }
 .results { margin-top:30px; padding:20px; background:#111; border-radius:15px; box-shadow:0 0 20px #0ff; border:1px solid #0ff; overflow-x:auto; }
-table { width:100%; border-collapse: separate; border-spacing:0 10px; margin-top:15px; table-layout:auto; min-width:700px; }
+table { width:100%; border-collapse: separate; border-spacing:0 10px; margin-top:15px; table-layout: fixed; }
 th, td {
   padding:12px;
   text-align:center;
   border-radius:12px;
   vertical-align: middle;
-  position:relative;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width:150px;
 }
 th { background:linear-gradient(90deg,#003366,#0066cc); color:#0ff; font-weight:700; border:1px solid #0ff; }
-.package-img { width:120px; height:80px; object-fit:cover; border-radius:12px; transition: transform 0.3s, box-shadow 0.3s; border:1px solid #0ff; cursor: pointer; }
+.package-img { width:100%; max-width:120px; height:80px; object-fit:cover; border-radius:12px; transition: transform 0.3s, box-shadow 0.3s; border:1px solid #0ff; cursor: pointer; }
 .package-img:hover { transform:scale(1.05); box-shadow:0 0 10px #0ff,0 0 20px #ff00ff; }
 .package-link { color:#fff; font-weight:600; text-decoration:none; cursor:pointer; }
 .package-link:hover { text-decoration:underline; color:#0ff; }
 .swap-btn { padding:5px 10px; font-size:14px; border-radius:10px; border:none; background:#0ff; color:#010101; cursor:pointer; margin-top:5px; }
 .swap-btn:hover { background:#00f; color:#0ff; }
-.budget-meter { position: relative; background:#000; border:1px solid #0ff; border-radius:12px; height:25px; margin-top:20px; overflow:hidden; box-shadow:0 0 5px #0ff; }
-.budget-fill { height:100%; width:0%; box-sizing:border-box; transition:width 0.5s ease; background:linear-gradient(90deg,#0ff,#00f,#ff00ff); }
-.budget-text { position:absolute; width:100%; height:100%; top:0; left:0; display:flex; justify-content:center; align-items:center; color:#010101; font-weight:600; pointer-events:none; }
+.budget-meter { position: relative; background:#000; border:1px solid #0ff; border-radius:12px; height:30px; margin-top:20px; overflow:hidden; box-shadow:0 0 5px #0ff; }
+.budget-fill { height:100%; width:0%; box-sizing:border-box; transition:width 0.5s ease; background:linear-gradient(90deg,#0ff,#00f,#ff00ff); position:relative; }
+.budget-text { position:absolute; width:100%; height:100%; top:0; left:0; display:flex; justify-content:center; align-items:center; color:#010101; font-weight:600; pointer-events:none; white-space:nowrap; }
+
 .modal { display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; overflow:auto; background: rgba(0,0,0,0.8); }
 .modal-content { background:#111; margin:5% auto; padding:20px; border-radius:20px; width:90%; max-width:650px; text-align:center; border:2px solid #0ff; box-shadow:0 0 20px #0ff; color:#0ff; }
 .modal-content img { width:100%; height:auto; border-radius:12px; margin-bottom:15px; }
@@ -47,9 +46,8 @@ th { background:linear-gradient(90deg,#003366,#0066cc); color:#0ff; font-weight:
 @media(max-width:700px) {
   .simulator { padding:20px; }
   button { font-size:16px; padding:10px 20px; }
-  th, td { font-size:12px; padding:6px; max-width:80px; }
+  th, td { font-size:12px; padding:6px; }
   .package-img { width:80px; height:50px; }
-  table { min-width:0; }
 }
 </style>
 </head>
@@ -102,7 +100,11 @@ th { background:linear-gradient(90deg,#003366,#0066cc); color:#0ff; font-weight:
     <table>
       <thead>
         <tr>
-          <th>Image</th><th>Category</th><th>Option</th><th>Price</th><th>Actions</th>
+          <th style="width:120px">Image</th>
+          <th style="width:120px">Category</th>
+          <th style="width:150px">Option</th>
+          <th style="width:100px">Price</th>
+          <th style="width:120px">Actions</th>
         </tr>
       </thead>
       <tbody id="resultTable"></tbody>
@@ -121,7 +123,7 @@ th { background:linear-gradient(90deg,#003366,#0066cc); color:#0ff; font-weight:
 </div>
 
 <script>
-// TRON Background
+// --- TRON Background ---
 const canvas=document.getElementById('tronCanvas'),ctx=canvas.getContext('2d');
 canvas.width=window.innerWidth; canvas.height=window.innerHeight;
 let lines=[],numLines=120,colors=['rgba(128,0,255,0.3)','rgba(0,128,255,0.3)','rgba(255,0,255,0.3)','rgba(0,255,255,0.3)'];
@@ -129,43 +131,31 @@ for(let i=0;i<numLines;i++) lines.push({x:Math.random()*canvas.width,y:Math.rand
 function animate(){ctx.fillStyle='rgba(1,1,1,0.85)';ctx.fillRect(0,0,canvas.width,canvas.height);lines.forEach(l=>{ctx.strokeStyle=l.color;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(l.x,l.y);ctx.lineTo(l.x,l.y+l.length);ctx.stroke();l.y+=l.speed;if(l.y>canvas.height) l.y=-l.length;});requestAnimationFrame(animate);}
 animate(); window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
 
-// --- Full Options ---
-const options = {
-  Venue:[
-    {name:"LA Loft / Warehouse",price:6000,perGuest:false,desc:"Industrial loft in LA.",img:"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"OC Ballroom",price:15000,perGuest:false,desc:"Elegant ballroom in Orange County.",img:"https://images.unsplash.com/photo-1553456558-aff63285bddf?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Malibu Beach Venue",price:18000,perGuest:false,desc:"Beachside venue Malibu.",img:"https://images.unsplash.com/photo-1560347876-aeef00ee58a1?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Palm Springs Desert Venue",price:11000,perGuest:false,desc:"Desert resort style.",img:"https://images.unsplash.com/photo-1505691938895-1758d7feb511?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Private Estate",price:25000,perGuest:false,desc:"Exclusive private estate.",img:"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
-  ],
-  Catering:[
-    {name:"Buffet",pricePerGuest:90,perGuest:true,desc:"Buffet-style catering.",img:"https://images.unsplash.com/photo-1533777324565-a040eb52fac2?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Plated Dinner",pricePerGuest:180,perGuest:true,desc:"Plated dinner service.",img:"https://images.unsplash.com/photo-1600891964599-f61ba0e24092?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Food Truck",pricePerGuest:35,perGuest:true,desc:"Fun mobile food service.",img:"https://images.unsplash.com/photo-1556910103-1b1f09c33e47?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Cocktail / Appetizers",pricePerGuest:60,perGuest:true,desc:"Finger foods and cocktails.",img:"https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"BBQ Outdoor",pricePerGuest:75,perGuest:true,desc:"Outdoor BBQ catering.",img:"https://images.unsplash.com/photo-1600891964599-f61ba0e24092?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
-  ],
-  Styling:[
-    {name:"Minimalist",price:5000,perGuest:false,desc:"Minimal decor style.",img:"https://images.unsplash.com/photo-1529070538774-1843cb3265df?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Standard",price:12000,perGuest:false,desc:"Standard floral and styling.",img:"https://images.unsplash.com/photo-1503437313881-503a91226419?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Luxe Floral",price:35000,perGuest:false,desc:"Luxury floral arrangement.",img:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
-  ],
-  PhotoVideo:[
-    {name:"Photo Only",price:5000,perGuest:false,desc:"Professional photography.",img:"https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Video Only",price:5000,perGuest:false,desc:"Professional videography.",img:"https://images.unsplash.com/photo-1504384308090-c894fdcc538d?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Photo+Video Premium",price:15000,perGuest:false,desc:"Combined premium service.",img:"https://images.unsplash.com/photo-1533750349088-cd871a92f312?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
-  ],
-  Entertainment:[
-    {name:"DJ",price:2000,perGuest:false,desc:"Professional DJ.",img:"https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Live Band",price:7000,perGuest:false,desc:"Live band performance.",img:"https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Mariachi",price:500,perGuest:false,desc:"Mariachi band.",img:"https://images.unsplash.com/photo-1567332574763-9a6b04b44f3a?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Cultural Acts",price:1500,perGuest:false,desc:"Dhol drummers or other.",img:"https://images.unsplash.com/photo-1573164574230-c44b0b4895c2?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
-  ],
-  Coordination:[
-    {name:"Day-of",price:3000,perGuest:false,desc:"Day-of coordination.",img:"https://images.unsplash.com/photo-1593720219220-0baf3c0b9b44?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Partial",price:5000,perGuest:false,desc:"Partial coordination.",img:"https://images.unsplash.com/photo-1603213102973-90e540c1b2a1?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Full Planning",price:12000,perGuest:false,desc:"Full-service planning.",img:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
-  ]
+// --- Options ---
+const options={
+Venue:[{name:"LA Loft / Warehouse",price:6000,perGuest:false,desc:"Industrial loft in LA.",img:"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"OC Ballroom",price:15000,perGuest:false,desc:"Elegant ballroom in Orange County.",img:"https://images.unsplash.com/photo-1553456558-aff63285bddf?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Malibu Beach Venue",price:18000,perGuest:false,desc:"Beachside venue Malibu.",img:"https://images.unsplash.com/photo-1560347876-aeef00ee58a1?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Palm Springs Desert Venue",price:11000,perGuest:false,desc:"Desert resort style.",img:"https://images.unsplash.com/photo-1505691938895-1758d7feb511?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Private Estate",price:25000,perGuest:false,desc:"Exclusive private estate.",img:"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}],
+Catering:[{name:"Buffet",pricePerGuest:90,perGuest:true,desc:"Buffet-style catering.",img:"https://images.unsplash.com/photo-1533777324565-a040eb52fac2?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Plated Dinner",pricePerGuest:180,perGuest:true,desc:"Plated dinner service.",img:"https://images.unsplash.com/photo-1600891964599-f61ba0e24092?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Food Truck",pricePerGuest:35,perGuest:true,desc:"Fun mobile food service.",img:"https://images.unsplash.com/photo-1556910103-1b1f09c33e47?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Cocktail / Appetizers",pricePerGuest:60,perGuest:true,desc:"Finger foods and cocktails.",img:"https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"BBQ Outdoor",pricePerGuest:75,perGuest:true,desc:"Outdoor BBQ catering.",img:"https://images.unsplash.com/photo-1600891964599-f61ba0e24092?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}],
+Styling:[{name:"Minimalist",price:5000,perGuest:false,desc:"Minimal decor style.",img:"https://images.unsplash.com/photo-1529070538774-1843cb3265df?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Standard",price:12000,perGuest:false,desc:"Standard floral and styling.",img:"https://images.unsplash.com/photo-1503437313881-503a91226419?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Luxe Floral",price:35000,perGuest:false,desc:"Luxury floral arrangement.",img:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}],
+PhotoVideo:[{name:"Photo Only",price:5000,perGuest:false,desc:"Professional photography.",img:"https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Video Only",price:5000,perGuest:false,desc:"Professional videography.",img:"https://images.unsplash.com/photo-1504384308090-c894fdcc538d?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Photo+Video Premium",price:15000,perGuest:false,desc:"Combined premium service.",img:"https://images.unsplash.com/photo-1533750349088-cd871a92f312?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}],
+Entertainment:[{name:"DJ",price:2000,perGuest:false,desc:"Professional DJ.",img:"https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Live Band",price:7000,perGuest:false,desc:"Live band performance.",img:"https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Mariachi",price:500,perGuest:false,desc:"Mariachi band.",img:"https://images.unsplash.com/photo-1567332574763-9a6b04b44f3a?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Cultural Acts",price:1500,perGuest:false,desc:"Dhol drummers or other.",img:"https://images.unsplash.com/photo-1573164574230-c44b0b4895c2?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}],
+Coordination:[{name:"Day-of",price:3000,perGuest:false,desc:"Day-of coordination.",img:"https://images.unsplash.com/photo-1593720219220-0baf3c0b9b44?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Partial",price:5000,perGuest:false,desc:"Partial coordination.",img:"https://images.unsplash.com/photo-1603213102973-90e540c1b2a1?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Full Planning",price:12000,perGuest:false,desc:"Full-service planning.",img:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}]
 };
 
 // --- State ---
@@ -177,30 +167,31 @@ function simulateBudget(){
   const budget=parseInt(document.getElementById('budget').value);
   const guests=parseInt(document.getElementById('guests').value);
   currentResults=[]; removedRows=[];
-  let totalCost=0, attempts=0;
+  let attempts=0, totalCost=0;
   while(attempts<100){
     currentResults=[];
-    for(let category in options){
-      let opt=getRandomOption(category);
+    for(let cat in options){
+      let opt=getRandomOption(cat);
       let price=opt.perGuest?opt.pricePerGuest*guests:opt.price;
-      currentResults.push({category,opt,price});
+      currentResults.push({category:cat,opt,price});
     }
     totalCost=currentResults.reduce((s,r)=>s+r.price,0);
-    if(totalCost<=budget*1.1) break; else attempts++;
+    if(totalCost<=budget*1.1) break;
+    attempts++;
   }
   renderResults();
-  updateBudgetMeter(budget,currentResults.reduce((s,r)=>s+r.price,0));
+  updateBudgetMeter(budget,totalCost);
 }
 
 function renderResults(){
   const table=document.getElementById('resultTable'); table.innerHTML="";
   currentResults.forEach((row,i)=>{
     const tr=document.createElement('tr');
-    tr.style.background="#010101";
+    tr.style.background="linear-gradient(90deg,#111,#222)";
     tr.innerHTML=`
       <td><img src="${row.opt.img}" class="package-img" onclick="showModal('${row.opt.img}','${row.opt.name}','${row.opt.desc}')"/></td>
       <td>${row.category}</td>
-      <td>${row.opt.name}</td>
+      <td title="${row.opt.name}">${row.opt.name}</td>
       <td>$${row.price.toLocaleString()}</td>
       <td>
         <button class="swap-btn" onclick="swapOption(${i})">Swap</button>
@@ -208,31 +199,27 @@ function renderResults(){
       </td>`;
     table.appendChild(tr);
   });
-  const total=document.getElementById('totalRow'); total.innerHTML=`<tr><td colspan="3" style="text-align:right;font-weight:700;">Total:</td><td colspan="2" style="font-weight:700;">$${currentResults.reduce((s,r)=>s+r.price,0).toLocaleString()}</td></tr>`;
+  const total=document.getElementById('totalRow');
+  const totalCost=currentResults.reduce((s,r)=>s+r.price,0);
+  total.innerHTML=`<tr><td colspan="3" style="text-align:right;font-weight:700;">Total:</td><td colspan="2" style="font-weight:700;">$${totalCost.toLocaleString()}</td></tr>`;
   document.getElementById('results').style.display="block";
 }
 
 function swapOption(index){
   const category=currentResults[index].category;
   const guests=parseInt(document.getElementById('guests').value);
-  let newOpt=getRandomOption(category);
-  let price=newOpt.perGuest?newOpt.pricePerGuest*guests:newOpt.price;
-  currentResults[index]={category,opt:newOpt,price};
+  let newOpt;
+  do{newOpt=getRandomOption(category);}while(newOpt.name===currentResults[index].opt.name);
+  currentResults[index].opt=newOpt;
+  currentResults[index].price=newOpt.perGuest?newOpt.pricePerGuest*guests:newOpt.price;
   renderResults();
+  const budget=parseInt(document.getElementById('budget').value);
+  const totalCost=currentResults.reduce((s,r)=>s+r.price,0);
+  updateBudgetMeter(budget,totalCost);
 }
 
-function removeRow(index){
-  removedRows.push(currentResults[index]);
-  currentResults.splice(index,1);
-  renderResults();
-}
-
-function undoRemove(){
-  if(removedRows.length>0){
-    currentResults.push(removedRows.pop());
-    renderResults();
-  }
-}
+function removeRow(index){ removedRows.push({row:currentResults[index],position:index}); currentResults.splice(index,1); renderResults(); }
+function undoRemove(){ if(removedRows.length>0){ const last=removedRows.pop(); currentResults.splice(last.position,0,last.row); renderResults(); const budget=parseInt(document.getElementById('budget').value); const totalCost=currentResults.reduce((s,r)=>s+r.price,0); updateBudgetMeter(budget,totalCost);} }
 
 function updateBudgetMeter(budget,total){
   const fill=document.getElementById('budgetFill');
