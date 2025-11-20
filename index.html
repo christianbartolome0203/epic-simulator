@@ -16,8 +16,8 @@ input:focus, select:focus { outline:none; box-shadow:0 0 10px #0ff; border-color
 button { padding:12px 25px; background:linear-gradient(90deg,#0ff,#00f,#ff00ff); color:#010101; border:none; border-radius:15px; cursor:pointer; font-size:18px; font-weight:600; transition:0.3s; box-shadow:0 0 10px #0ff; }
 button:hover { transform:translateY(-3px); box-shadow:0 0 15px #0ff,0 0 30px #00f; }
 .results { margin-top:30px; padding:20px; background:#111; border-radius:15px; box-shadow:0 0 20px #0ff; border:1px solid #0ff; overflow-x:auto; }
-table { width:100%; border-collapse: separate; border-spacing:0 10px; margin-top:15px; table-layout:auto; min-width:700px; }
-th, td { padding:12px; text-align:center; border-radius:12px; vertical-align: middle; word-wrap:break-word; position:relative; }
+table { width:100%; border-collapse: separate; border-spacing:0 10px; margin-top:15px; table-layout: fixed; min-width:700px; }
+th, td { padding:12px; text-align:center; border-radius:12px; vertical-align: middle; word-wrap:break-word; position:relative; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 th { background:linear-gradient(90deg,#003366,#0066cc); color:#0ff; font-weight:700; border:1px solid #0ff; }
 .package-img { width:120px; height:80px; object-fit:cover; border-radius:12px; transition: transform 0.3s, box-shadow 0.3s; border:1px solid #0ff; cursor: pointer; }
 .package-img:hover { transform:scale(1.05); box-shadow:0 0 10px #0ff,0 0 20px #ff00ff; }
@@ -26,7 +26,7 @@ th { background:linear-gradient(90deg,#003366,#0066cc); color:#0ff; font-weight:
 .swap-btn { padding:5px 10px; font-size:14px; border-radius:10px; border:none; background:#0ff; color:#010101; cursor:pointer; margin-top:5px; }
 .swap-btn:hover { background:#00f; color:#0ff; }
 .budget-meter { position:relative; background:#000; border:1px solid #0ff; border-radius:12px; height:25px; margin-top:20px; overflow:hidden; box-shadow:0 0 5px #0ff; }
-.budget-fill { height:100%; width:0%; background:linear-gradient(90deg,#0ff,#00f,#ff00ff); text-align:right; padding-right:5px; box-sizing:border-box; color:#010101; font-weight:600; line-height:25px; transition:width 0.5s ease; }
+.budget-fill { height:100%; width:0%; text-align:right; padding-right:5px; box-sizing:border-box; color:#010101; font-weight:600; line-height:25px; transition:width 0.5s ease; }
 .modal { display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; overflow:auto; background: rgba(0,0,0,0.8); }
 .modal-content { background:#111; margin:5% auto; padding:20px; border-radius:20px; width:90%; max-width:650px; text-align:center; border:2px solid #0ff; box-shadow:0 0 20px #0ff; color:#0ff; }
 .modal-content img { width:100%; height:auto; border-radius:12px; margin-bottom:15px; }
@@ -108,7 +108,7 @@ th { background:linear-gradient(90deg,#003366,#0066cc); color:#0ff; font-weight:
 </div>
 
 <script>
-// --- TRON Matrix Background ---
+// --- TRON Background ---
 const canvas = document.getElementById('tronCanvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -141,59 +141,89 @@ window.addEventListener('resize',()=>{canvas.width=window.innerWidth; canvas.hei
 
 // --- Options ---
 const options={
-  Venue:[
-    {name:"LA Loft / Warehouse",price:6000,perGuest:false,desc:"Industrial loft in LA.",img:"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"OC Ballroom",price:15000,perGuest:false,desc:"Elegant ballroom in Orange County.",img:"https://images.unsplash.com/photo-1553456558-aff63285bddf?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Malibu Beach Venue",price:18000,perGuest:false,desc:"Beachside venue Malibu.",img:"https://images.unsplash.com/photo-1560347876-aeef00ee58a1?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Palm Springs Desert Venue",price:11000,perGuest:false,desc:"Desert resort style.",img:"https://images.unsplash.com/photo-1505691938895-1758d7feb511?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Private Estate",price:25000,perGuest:false,desc:"Exclusive private estate.",img:"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
-  ],
-  Catering:[
-    {name:"Buffet",pricePerGuest:90,perGuest:true,desc:"Buffet-style catering.",img:"https://images.unsplash.com/photo-1533777324565-a040eb52fac2?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Plated Dinner",pricePerGuest:180,perGuest:true,desc:"Plated dinner service.",img:"https://images.unsplash.com/photo-1600891964599-f61ba0e24092?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Food Truck",pricePerGuest:35,perGuest:true,desc:"Fun mobile food service.",img:"https://images.unsplash.com/photo-1556910103-1b1f09c33e47?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Cocktail / Appetizers",pricePerGuest:60,perGuest:true,desc:"Finger foods and cocktails.",img:"https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"BBQ Outdoor",pricePerGuest:75,perGuest:true,desc:"Outdoor BBQ catering.",img:"https://images.unsplash.com/photo-1600891964599-f61ba0e24092?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
-  ],
-  Styling:[
-    {name:"Minimalist",price:5000,perGuest:false,desc:"Minimal decor style.",img:"https://images.unsplash.com/photo-1529070538774-1843cb3265df?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Standard",price:12000,perGuest:false,desc:"Standard floral and styling.",img:"https://images.unsplash.com/photo-1503437313881-503a91226419?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Luxe Floral",price:35000,perGuest:false,desc:"Luxury floral arrangement.",img:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
-  ],
-  PhotoVideo:[
-    {name:"Photo Only",price:5000,perGuest:false,desc:"Professional photography.",img:"https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Video Only",price:5000,perGuest:false,desc:"Professional videography.",img:"https://images.unsplash.com/photo-1504384308090-c894fdcc538d?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Photo+Video Premium",price:15000,perGuest:false,desc:"Combined premium service.",img:"https://images.unsplash.com/photo-1533750349088-cd871a92f312?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
-  ],
-  Entertainment:[
-    {name:"DJ",price:2000,perGuest:false,desc:"Professional DJ.",img:"https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Live Band",price:7000,perGuest:false,desc:"Live band performance.",img:"https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Mariachi",price:500,perGuest:false,desc:"Mariachi band.",img:"https://images.unsplash.com/photo-1567332574763-9a6b04b44f3a?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Cultural Acts",price:1500,perGuest:false,desc:"Dhol drummers or other.",img:"https://images.unsplash.com/photo-1573164574230-c44b0b4895c2?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
-  ],
-  Coordination:[
-    {name:"Day-of",price:3000,perGuest:false,desc:"Day-of coordination.",img:"https://images.unsplash.com/photo-1593720219220-0baf3c0b9b44?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Partial",price:5000,perGuest:false,desc:"Partial coordination.",img:"https://images.unsplash.com/photo-1603213102973-90e540c1b2a1?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
-    {name:"Full Planning",price:12000,perGuest:false,desc:"Full-service planning.",img:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
-  ]
+Venue:[
+{name:"LA Loft / Warehouse",price:6000,perGuest:false,desc:"Industrial loft in LA.",img:"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"OC Ballroom",price:15000,perGuest:false,desc:"Elegant ballroom in Orange County.",img:"https://images.unsplash.com/photo-1553456558-aff63285bddf?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Malibu Beach Venue",price:18000,perGuest:false,desc:"Beachside venue Malibu.",img:"https://images.unsplash.com/photo-1560347876-aeef00ee58a1?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Palm Springs Desert Venue",price:11000,perGuest:false,desc:"Desert resort style.",img:"https://images.unsplash.com/photo-1505691938895-1758d7feb511?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Private Estate",price:25000,perGuest:false,desc:"Exclusive private estate.",img:"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
+],
+Catering:[
+{name:"Buffet",pricePerGuest:90,perGuest:true,desc:"Buffet-style catering.",img:"https://images.unsplash.com/photo-1533777324565-a040eb52fac2?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Plated Dinner",pricePerGuest:180,perGuest:true,desc:"Plated dinner service.",img:"https://images.unsplash.com/photo-1600891964599-f61ba0e24092?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Food Truck",pricePerGuest:35,perGuest:true,desc:"Fun mobile food service.",img:"https://images.unsplash.com/photo-1556910103-1b1f09c33e47?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Cocktail / Appetizers",pricePerGuest:60,perGuest:true,desc:"Finger foods and cocktails.",img:"https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"BBQ Outdoor",pricePerGuest:75,perGuest:true,desc:"Outdoor BBQ catering.",img:"https://images.unsplash.com/photo-1600891964599-f61ba0e24092?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
+],
+Styling:[
+{name:"Minimalist",price:5000,perGuest:false,desc:"Minimal decor style.",img:"https://images.unsplash.com/photo-1529070538774-1843cb3265df?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Standard",price:12000,perGuest:false,desc:"Standard floral and styling.",img:"https://images.unsplash.com/photo-1503437313881-503a91226419?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Luxe Floral",price:35000,perGuest:false,desc:"Luxury floral arrangement.",img:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
+],
+PhotoVideo:[
+{name:"Photo Only",price:5000,perGuest:false,desc:"Professional photography.",img:"https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Video Only",price:5000,perGuest:false,desc:"Professional videography.",img:"https://images.unsplash.com/photo-1504384308090-c894fdcc538d?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Photo+Video Premium",price:15000,perGuest:false,desc:"Combined premium service.",img:"https://images.unsplash.com/photo-1533750349088-cd871a92f312?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
+],
+Entertainment:[
+{name:"DJ",price:2000,perGuest:false,desc:"Professional DJ.",img:"https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Live Band",price:7000,perGuest:false,desc:"Live band performance.",img:"https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Mariachi",price:500,perGuest:false,desc:"Mariachi band.",img:"https://images.unsplash.com/photo-1567332574763-9a6b04b44f3a?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Cultural Acts",price:1500,perGuest:false,desc:"Dhol drummers or other.",img:"https://images.unsplash.com/photo-1573164574230-c44b0b4895c2?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
+],
+Coordination:[
+{name:"Day-of",price:3000,perGuest:false,desc:"Day-of coordination.",img:"https://images.unsplash.com/photo-1593720219220-0baf3c0b9b44?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Partial",price:5000,perGuest:false,desc:"Partial coordination.",img:"https://images.unsplash.com/photo-1603213102973-90e540c1b2a1?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"},
+{name:"Full Planning",price:12000,perGuest:false,desc:"Full-service planning.",img:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?crop=entropy&cs=tinysrgb&fit=max&h=400&w=800"}
+]
 };
 
 // --- State ---
 let currentResults=[], removedRows=[];
 
-function getRandomOption(category){ const opts=options[category]; return opts[Math.floor(Math.random()*opts.length)]; }
+function getRandomOption(category){ 
+  const opts = options[category]; 
+  const sortedOpts = opts.slice().sort((a,b)=>{
+    const pa = a.perGuest? a.pricePerGuest : a.price;
+    const pb = b.perGuest? b.pricePerGuest : b.price;
+    return pa - pb;
+  });
+  return sortedOpts[Math.floor(Math.random()*sortedOpts.length)]; 
+}
 
 function simulateBudget(){
-  const budget=parseInt(document.getElementById('budget').value);
-  const guests=parseInt(document.getElementById('guests').value);
-  currentResults=[]; removedRows=[];
+  const budget = parseInt(document.getElementById('budget').value);
+  const guests = parseInt(document.getElementById('guests').value);
+  currentResults = [];
+  removedRows = [];
+
   for(let category in options){
-    let opt=getRandomOption(category);
-    let price=opt.perGuest ? opt.pricePerGuest*guests : opt.price;
+    let opt = getRandomOption(category);
+    let price = opt.perGuest ? opt.pricePerGuest * guests : opt.price;
     currentResults.push({category,opt,price});
   }
+
+  let totalCost = currentResults.reduce((sum,r)=>sum+r.price,0);
+  let attempts = 0;
+  while(totalCost > budget * 1.1 && attempts < 50){
+    let maxIndex = currentResults.reduce((maxIdx,row,idx,arr)=>{
+      return row.price > arr[maxIdx].price ? idx : maxIdx;
+    },0);
+    let cheaperOptions = options[currentResults[maxIndex].category].filter(o=>{
+      let p = o.perGuest ? o.pricePerGuest * guests : o.price;
+      return p < currentResults[maxIndex].price;
+    });
+    if(cheaperOptions.length > 0){
+      let newOpt = cheaperOptions[Math.floor(Math.random()*cheaperOptions.length)];
+      currentResults[maxIndex].opt = newOpt;
+      currentResults[maxIndex].price = newOpt.perGuest ? newOpt.pricePerGuest * guests : newOpt.price;
+    } else break;
+    totalCost = currentResults.reduce((sum,r)=>sum+r.price,0);
+    attempts++;
+  }
+
   renderResults();
-  const totalCost=currentResults.reduce((sum,r)=>sum+r.price,0);
+  totalCost = currentResults.reduce((sum,r)=>sum+r.price,0);
   updateBudgetMeter(budget,totalCost);
 }
 
@@ -219,9 +249,9 @@ function renderResults(){
 function swapOption(index){
   const category=currentResults[index].category;
   const currentName=currentResults[index].opt.name;
+  const guests=parseInt(document.getElementById('guests').value);
   let newOpt;
   do{ newOpt=getRandomOption(category);} while(newOpt.name===currentName);
-  const guests=parseInt(document.getElementById('guests').value);
   currentResults[index].opt=newOpt;
   currentResults[index].price=newOpt.perGuest ? newOpt.pricePerGuest*guests : newOpt.price;
   renderResults();
@@ -242,9 +272,10 @@ function undoRemove(){
 }
 
 function updateBudgetMeter(budget,total){
-  const fill=Math.min(100,(total/budget)*100);
+  let fill=Math.min(120,(total/budget)*100);
   const meter=document.getElementById('budgetFill');
   meter.style.width=fill+"%";
+  meter.style.background = fill > 100 ? 'linear-gradient(90deg,#ff0000,#ff00ff,#ff9900)' : 'linear-gradient(90deg,#0ff,#00f,#ff00ff)';
   meter.innerText=`${fill.toFixed(0)}% of Budget`;
 }
 
